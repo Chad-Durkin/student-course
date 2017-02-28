@@ -127,7 +127,6 @@ namespace Registrar
             Assert.Equal(expected, result);
         }
 
-
         [Fact]
         public void Test_UpdateCompleted_ReturnIfCourseCompletedIsUpdated()
         {
@@ -150,6 +149,25 @@ namespace Registrar
             Assert.Equal(expected, result);
         }
 
+        [Fact]
+        public void Test_GetMajorCourse_ReturnIfCourseIsMajorRelated()
+        {
+            //Arrange
+            Department testDepartment = new Department("English");
+            testDepartment.Save();
+            Course testCourse = new Course("English", "ENGL120", testDepartment.GetId());
+            testCourse.Save();
+            Student testStudent = new Student("Britton", "2010-09-01", testDepartment.GetId());
+            testStudent.Save();
+
+            //Act
+            testCourse.Add(testStudent.GetId());
+            int result = testCourse.GetMajorCourse(testStudent.GetId());
+            int expected = 1;
+
+            //Assert
+            Assert.Equal(expected, result);
+        }
 
         public void Dispose()
         {

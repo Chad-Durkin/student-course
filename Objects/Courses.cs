@@ -124,15 +124,21 @@ namespace Registrar
 
         public void Add(int studentId)
         {
+            int majorCourse = 0;
             SqlConnection conn = DB.Connection();
             conn.Open();
+
+            if(this.GetDepartmentId() == Student.Find(studentId).GetDepartmentId())
+            {
+                majorCourse = 1;
+            }
 
             SqlCommand cmd = new SqlCommand("INSERT INTO courses_students (courses_id, students_id, completed, major) VALUES (@CourseId, @StudentId, @Completed, @Major);", conn);
 
             cmd.Parameters.Add(new SqlParameter("@CourseId", this.GetId()));
             cmd.Parameters.Add(new SqlParameter("@StudentId", studentId.ToString()));
             cmd.Parameters.Add(new SqlParameter("@Completed", "0"));
-            cmd.Parameters.Add(new SqlParameter("@Major", "0"));
+            cmd.Parameters.Add(new SqlParameter("@Major", majorCourse));
 
             cmd.ExecuteNonQuery();
 
@@ -164,6 +170,30 @@ namespace Registrar
             DB.CloseSqlConnection(rdr, conn);
 
             return completedCourse;
+        }
+
+        public int GetMajorCourse(int studentId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT major FROM courses_students WHERE courses_id = @CoursesId AND students_id = @StudentsId;", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@CoursesId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@StudentsId", studentId.ToString()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            int majorCourse = 0;
+
+            while(rdr.Read())
+            {
+                majorCourse = rdr.GetByte(0);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return majorCourse;
         }
 
         public void UpdateCompleted(int studentId)

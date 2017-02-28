@@ -91,6 +91,7 @@ namespace Registrar
             Assert.Equal(expected, result);
         }
 
+
         public void Dispose()
         {
             Student.DeleteAll();
