@@ -22,5 +22,11 @@ namespace Registrar
             //Assert
             Assert.Equal(0, result);
         }
+        
+        public void Dispose()
+        {
+          Student.DeleteAll();
+          Course.DeleteAll();
+        }
     }
 }
