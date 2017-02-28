@@ -113,10 +113,11 @@ namespace Registrar
             SqlConnection conn = DB.Connection();
             conn.Open();
 
-            SqlCommand cmd = new SqlCommand("INSERT INTO courses_students (courses_id, students_id) VALUES (@CourseId, @StudentId);", conn);
+            SqlCommand cmd = new SqlCommand("INSERT INTO courses_students (courses_id, students_id, completed) VALUES (@CourseId, @StudentId, @Completed);", conn);
 
             cmd.Parameters.Add(new SqlParameter("@CourseId", courseId.ToString()));
             cmd.Parameters.Add(new SqlParameter("@StudentId", this.GetId().ToString()));
+            cmd.Parameters.Add(new SqlParameter("@Completed", "0"));
 
             cmd.ExecuteNonQuery();
 
@@ -192,6 +193,49 @@ namespace Registrar
             cmd.ExecuteNonQuery();
 
             if (conn != null)
+            {
+                conn.Close();
+            }
+        }
+
+        public int GetCompleted(int courseId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT completed FROM courses_students WHERE courses_id = @CoursesId AND students_id = @StudentsId;", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@StudentsId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@CoursesId", courseId.ToString()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            int completedCourse = 0;
+
+            while(rdr.Read())
+            {
+                completedCourse = rdr.GetByte(0);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return completedCourse;
+        }
+
+        public void UpdateCompleted(int courseId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("UPDATE courses_students SET completed = @Completed WHERE courses_id = @CourseId AND students_id = @StudentId", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@StudentId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@CourseId", courseId.ToString()));
+            cmd.Parameters.Add(new SqlParameter("@Completed", "1"));
+
+            cmd.ExecuteNonQuery();
+
+            if(conn != null)
             {
                 conn.Close();
             }

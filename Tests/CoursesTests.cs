@@ -32,7 +32,6 @@ namespace Registrar
 
             //Act
             Course savedCourse = Course.GetAll()[0];
-            Console.WriteLine(Course.GetAll().Count);
 
             int result = savedCourse.GetId();
             int testId = testCourse.GetId();
@@ -88,10 +87,74 @@ namespace Registrar
             Assert.Equal(testCourse, result);
         }
 
+        [Fact]
+        public void Test_DeleteCourse_DeleteCourseFromDatabase()
+        {
+            //Arrange
+            Course testCourse1 = new Course("English", "ENGL120");
+            testCourse1.Save();
+            Course testCourse2 = new Course("Math", "MATH101");
+            testCourse2.Save();
+
+            //Act
+            testCourse2.Delete();
+
+            List<Course> allCourses = Course.GetAll();
+            List<Course> expected = new List<Course>{testCourse1};
+
+            //Assert
+            Assert.Equal(expected, allCourses);
+        }
+
+        [Fact]
+        public void Test_GetCompleted_ReturnIfCourseIsCompleted()
+        {
+            //Arrange
+            Course testCourse1 = new Course("English", "ENGL120");
+            testCourse1.Save();
+            Course testCourse2 = new Course("Math", "MATH101");
+            testCourse2.Save();
+            Student testStudent = new Student("Britton", "2010-09-01");
+            testStudent.Save();
+
+            //Act
+            testStudent.Add(testCourse1.GetId());
+            testStudent.Add(testCourse2.GetId());
+            int result = testStudent.GetCompleted(testCourse1.GetId());
+            int expected = 0;
+
+            //Assert
+            Assert.Equal(expected, result);
+        }
+
+
+        [Fact]
+        public void Test_UpdateCompleted_ReturnIfCourseCompletedIsUpdated()
+        {
+            //Arrange
+            Course testCourse1 = new Course("English", "ENGL120");
+            testCourse1.Save();
+            Course testCourse2 = new Course("Math", "MATH101");
+            testCourse2.Save();
+            Student testStudent = new Student("Britton", "2010-09-01");
+            testStudent.Save();
+
+            //Act
+            testStudent.Add(testCourse1.GetId());
+            testStudent.Add(testCourse2.GetId());
+            testStudent.UpdateCompleted(testCourse1.GetId());
+            int result = testStudent.GetCompleted(testCourse1.GetId());
+            int expected = 1;
+
+            //Assert
+            Assert.Equal(expected, result);
+        }
+
 
         public void Dispose()
         {
             Student.DeleteAll();
+            Department.DeleteAll();
             Course.DeleteAll();
         }
     }

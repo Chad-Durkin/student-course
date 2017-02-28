@@ -87,27 +87,76 @@ namespace Registrar
             //Assert
             Assert.Equal(testStudent, result);
         }
+
         [Fact]
         public void Test_DeleteStudent_DeleteStudentFromDatabase()
         {
+            //Arrange
             Student student1 = new Student("Britton", "2010-09-01");
             student1.Save();
 
             Student student2 = new Student("Melanie", "2011-01-01");
             student2.Save();
 
+            //Act
             student1.Delete();
 
             List<Student> allStudents = Student.GetAll();
             List<Student> expected = new List<Student>{student2};
 
+            //Assert
             Assert.Equal(expected, allStudents);
+        }
+
+        [Fact]
+        public void Test_GetCompleted_ReturnIfCourseIsCompleted()
+        {
+            //Arrange
+            Course testCourse1 = new Course("English", "ENGL120");
+            testCourse1.Save();
+            Course testCourse2 = new Course("Math", "MATH101");
+            testCourse2.Save();
+            Student testStudent = new Student("Britton", "2010-09-01");
+            testStudent.Save();
+
+            //Act
+            testStudent.Add(testCourse1.GetId());
+            testStudent.Add(testCourse2.GetId());
+            int result = testCourse1.GetCompleted(testStudent.GetId());
+            int expected = 0;
+
+            //Assert
+            Assert.Equal(expected, result);
+        }
+
+
+        [Fact]
+        public void Test_UpdateCompleted_ReturnIfCourseCompletedIsUpdated()
+        {
+            //Arrange
+            Course testCourse1 = new Course("English", "ENGL120");
+            testCourse1.Save();
+            Course testCourse2 = new Course("Math", "MATH101");
+            testCourse2.Save();
+            Student testStudent = new Student("Britton", "2010-09-01");
+            testStudent.Save();
+
+            //Act
+            testStudent.Add(testCourse1.GetId());
+            testStudent.Add(testCourse2.GetId());
+            testCourse1.UpdateCompleted(testStudent.GetId());
+            int result = testCourse1.GetCompleted(testStudent.GetId());
+            int expected = 1;
+
+            //Assert
+            Assert.Equal(expected, result);
         }
 
         public void Dispose()
         {
             Student.DeleteAll();
             Course.DeleteAll();
+            Department.DeleteAll();
         }
     }
 }

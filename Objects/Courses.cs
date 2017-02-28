@@ -33,7 +33,7 @@ namespace Registrar
             }
         }
 
-//HashCode is a unique identifier given by computer relating to its location in the computer's memory. the following method overrides the unique id and sets it equal to name
+        //HashCode is a unique identifier given by computer relating to its location in the computer's memory. the following method overrides the unique id and sets it equal to name
         public override int GetHashCode()
         {
             return this.GetName().GetHashCode();
@@ -107,7 +107,6 @@ namespace Registrar
             }
 
             DB.CloseSqlConnection(rdr, conn);
-            Console.WriteLine(Course.GetAll().Count);
         }
 
         public void Add(int studentId)
@@ -115,10 +114,54 @@ namespace Registrar
             SqlConnection conn = DB.Connection();
             conn.Open();
 
-            SqlCommand cmd = new SqlCommand("INSERT INTO courses_students (courses_id, students_id) VALUES (@CourseId, @StudentId);", conn);
+            SqlCommand cmd = new SqlCommand("INSERT INTO courses_students (courses_id, students_id, completed) VALUES (@CourseId, @StudentId, @Completed);", conn);
 
             cmd.Parameters.Add(new SqlParameter("@CourseId", this.GetId()));
             cmd.Parameters.Add(new SqlParameter("@StudentId", studentId.ToString()));
+            cmd.Parameters.Add(new SqlParameter("@Completed", "0"));
+
+            cmd.ExecuteNonQuery();
+
+            if(conn != null)
+            {
+                conn.Close();
+            }
+        }
+
+        public int GetCompleted(int studentId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT completed FROM courses_students WHERE courses_id = @CoursesId AND students_id = @StudentsId;", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@CoursesId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@StudentsId", studentId.ToString()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            int completedCourse = 0;
+
+            while(rdr.Read())
+            {
+                completedCourse = rdr.GetByte(0);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return completedCourse;
+        }
+
+        public void UpdateCompleted(int studentId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("UPDATE courses_students SET completed = @Completed WHERE courses_id = @CourseId AND students_id = @StudentId", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@CourseId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@StudentId", studentId.ToString()));
+            cmd.Parameters.Add(new SqlParameter("@Completed", "1"));
 
             cmd.ExecuteNonQuery();
 
@@ -181,6 +224,22 @@ namespace Registrar
             DB.CloseSqlConnection(rdr, conn);
 
             return foundCourse;
+        }
+
+        public void Delete()
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("DELETE FROM courses WHERE id = @CourseId; DELETE FROM courses_students WHERE courses_id = @CourseId;", conn);
+            cmd.Parameters.Add(new SqlParameter("@CourseId", this.GetId()));
+
+            cmd.ExecuteNonQuery();
+
+            if (conn != null)
+            {
+                conn.Close();
+            }
         }
 
         public static void DeleteAll()
