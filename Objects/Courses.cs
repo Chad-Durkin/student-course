@@ -33,6 +33,7 @@ namespace Registrar
             }
         }
 
+//HashCode is a unique identifier given by computer relating to its location in the computer's memory. the following method overrides the unique id and sets it equal to name
         public override int GetHashCode()
         {
             return this.GetName().GetHashCode();
@@ -82,25 +83,80 @@ namespace Registrar
                 allCourses.Add(newCourse);
             }
 
-            if (rdr != null)
-            {
-                rdr.Close();
-            }
-            if (conn != null)
-            {
-                conn.Close();
-            }
+            DB.CloseSqlConnection(rdr, conn);
 
             return allCourses;
         }
 
-        public static void DeleteAll()
+
+        public void Save()
         {
             SqlConnection conn = DB.Connection();
             conn.Open();
-            SqlCommand cmd = new SqlCommand("DELETE FROM courses;", conn);
+
+            SqlCommand cmd = new SqlCommand("INSERT INTO courses (name, course_number) OUTPUT INSERTED.id VALUES (@Name, @CourseNumber);", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@Name", this.GetName()));
+            cmd.Parameters.Add(new SqlParameter("@CourseNumber", this.GetCourseNumber()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            while(rdr.Read())
+            {
+                this._id = rdr.GetInt32(0);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+        }
+
+        public void Add(int studentId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("INSERT INTO courses_students (courses_id, students_id) VALUES (@CourseId, @StudentId);", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@CourseId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@StudentId", studentId.ToString()));
+
             cmd.ExecuteNonQuery();
-            conn.Close();
+
+            if(conn != null)
+            {
+                conn.Close();
+            }
+        }
+
+        public List<Student> GetStudents()
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT students.* FROM courses JOIN courses_students ON (courses.id = courses_students.courses_id) JOIN students ON (courses_students.students_id = students.id) WHERE courses.id = @CourseId;", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@CourseId", this.GetId()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            List<Student> allStudents = new List<Student> {};
+
+            while(rdr.Read())
+            {
+                int studentId = rdr.GetInt32(0);
+                string studentName = rdr.GetString(1);
+                string enrollmentDate = rdr.GetDateTime(2).ToString("yyyy-MM-dd");
+                Student newStudent = new Student(studentName, enrollmentDate, studentId);
+                allStudents.Add(newStudent);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return allStudents;
+        }
+
+        public static void DeleteAll()
+        {
+            DB.TableDeleteAll("courses");
         }
     }
 }

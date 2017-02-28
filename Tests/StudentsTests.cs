@@ -22,11 +22,28 @@ namespace Registrar
             //Assert
             Assert.Equal(0, result);
         }
-        
+
+        [Fact]
+        public void Test_Save_AssignsIdToStudentObject()
+        {
+            //Arrange
+            Student testStudent = new Student("Britton", "2010-09-01");
+            testStudent.Save();
+
+            //Act
+            Student savedStudent = Student.GetAll()[0];
+
+            int result = savedStudent.GetId();
+            int testId = testStudent.GetId();
+
+            //Assert
+            Assert.Equal(testId, result);
+        }
+
         public void Dispose()
         {
-          Student.DeleteAll();
-          Course.DeleteAll();
+            Student.DeleteAll();
+            Course.DeleteAll();
         }
     }
 }

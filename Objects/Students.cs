@@ -33,6 +33,7 @@ namespace Registrar
             }
         }
 
+        //HashCode is a unique identifier given by computer relating to its location in the computer's memory. the following method overrides the unique id and sets it equal to name
         public override int GetHashCode()
         {
             return this.GetName().GetHashCode();
@@ -77,30 +78,39 @@ namespace Registrar
             {
                 int studentId = rdr.GetInt32(0);
                 string studentName = rdr.GetString(1);
-                string studentEnrollmentDate = rdr.GetString(2);
+                string studentEnrollmentDate = rdr.GetDateTime(2).ToString("yyyy-MM-dd");
                 Student newStudent = new Student(studentName, studentEnrollmentDate, studentId);
                 allStudents.Add(newStudent);
             }
 
-            if (rdr != null)
-            {
-                rdr.Close();
-            }
-            if (conn != null)
-            {
-                conn.Close();
-            }
+            DB.CloseSqlConnection(rdr, conn);
 
             return allStudents;
         }
 
-        public static void DeleteAll()
+        public void Save()
         {
             SqlConnection conn = DB.Connection();
             conn.Open();
-            SqlCommand cmd = new SqlCommand("DELETE FROM students;", conn);
-            cmd.ExecuteNonQuery();
-            conn.Close();
+
+            SqlCommand cmd = new SqlCommand("INSERT INTO students (name, enrollment_date) OUTPUT INSERTED.id VALUES (@Name, @EnrollmentDate);", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@Name", this.GetName()));
+            cmd.Parameters.Add(new SqlParameter("@EnrollmentDate", this.GetEnrollmentDate()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            while(rdr.Read())
+            {
+                this._id = rdr.GetInt32(0);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+        }
+
+        public static void DeleteAll()
+        {
+            DB.TableDeleteAll("students");
         }
     }
 }
