@@ -76,6 +76,41 @@ namespace Registrar
             return allDepartments;
         }
 
+        public void AddStudent(int studentId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("UPDATE students SET department_id = @DepartmentId WHERE id = @StudentId;", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@StudentId", studentId));
+            cmd.Parameters.Add(new SqlParameter("@DepartmentId", this.GetId().ToString()));
+
+            cmd.ExecuteNonQuery();
+
+            if(conn != null)
+            {
+                conn.Close();
+            }
+        }
+
+        public void AddCourse(int courseId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("UPDATE courses SET department_id = @DepartmentId WHERE id = @CourseId;", conn);
+
+            cmd.Parameters.Add(new SqlParameter("@CourseId", courseId));
+            cmd.Parameters.Add(new SqlParameter("@DepartmentId", this.GetId().ToString()));
+
+            cmd.ExecuteNonQuery();
+
+            if(conn != null)
+            {
+                conn.Close();
+            }
+        }
 
         public void Save()
         {
