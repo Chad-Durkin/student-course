@@ -32,12 +32,28 @@ namespace Registrar
 
             //Act
             Course savedCourse = Course.GetAll()[0];
+            Console.WriteLine(Course.GetAll().Count);
 
             int result = savedCourse.GetId();
             int testId = testCourse.GetId();
 
             //Assert
             Assert.Equal(testId, result);
+        }
+
+        [Fact]
+        public void Test_Save()
+        {
+            //Arrange
+            Course testCourse = new Course("English", "ENGL120");
+            testCourse.Save();
+
+            //Act
+            List<Course> result = Course.GetAll();
+            List<Course> testList = new List<Course>{testCourse};
+
+            //Assert
+            Assert.Equal(testList, result);
         }
 
         [Fact]
@@ -61,8 +77,8 @@ namespace Registrar
 
         public void Dispose()
         {
-          Student.DeleteAll();
-          Course.DeleteAll();
+            Student.DeleteAll();
+            Course.DeleteAll();
         }
     }
 }

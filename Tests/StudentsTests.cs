@@ -40,6 +40,39 @@ namespace Registrar
             Assert.Equal(testId, result);
         }
 
+        [Fact]
+        public void Test_Save()
+        {
+            //Arrange
+            Student testStudent = new Student("Britton", "2010-09-01");
+            testStudent.Save();
+
+            //Act
+            List<Student> result = Student.GetAll();
+            List<Student> testList = new List<Student>{testStudent};
+
+            //Assert
+            Assert.Equal(testList, result);
+        }
+
+        [Fact]
+        public void Test_Add_AssignsCourseToAStudent()
+        {
+            //Arrange
+            Course testCourse = new Course("English", "ENGL120");
+            testCourse.Save();
+            Student testStudent = new Student("Britton", "2010-09-01");
+            testStudent.Save();
+
+            //Act
+            testStudent.Add(testCourse.GetId());
+            List<Course> allCourses = testStudent.GetCourses();
+            List<Course> result = new List<Course>{testCourse};
+
+            //Assert
+            Assert.Equal(result, allCourses);
+        }
+
         public void Dispose()
         {
             Student.DeleteAll();

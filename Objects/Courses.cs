@@ -107,6 +107,7 @@ namespace Registrar
             }
 
             DB.CloseSqlConnection(rdr, conn);
+            Console.WriteLine(Course.GetAll().Count);
         }
 
         public void Add(int studentId)
@@ -134,7 +135,7 @@ namespace Registrar
 
             SqlCommand cmd = new SqlCommand("SELECT students.* FROM courses JOIN courses_students ON (courses.id = courses_students.courses_id) JOIN students ON (courses_students.students_id = students.id) WHERE courses.id = @CourseId;", conn);
 
-            cmd.Parameters.Add(new SqlParameter("@CourseId", this.GetId()));
+            cmd.Parameters.Add(new SqlParameter("@CourseId", this.GetId().ToString()));
 
             SqlDataReader rdr = cmd.ExecuteReader();
 
