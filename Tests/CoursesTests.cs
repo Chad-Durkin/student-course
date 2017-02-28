@@ -74,6 +74,20 @@ namespace Registrar
             Assert.Equal(result, allStudents);
         }
 
+        [Fact]
+        public void Test_FindFindsCourseInDatabase()
+        {
+            //Arrange
+            Course testCourse = new Course("English", "ENGL120");
+            testCourse.Save();
+
+            //Act
+            Course result = Course.Find(testCourse.GetId());
+
+            //Assert
+            Assert.Equal(testCourse, result);
+        }
+
 
         public void Dispose()
         {

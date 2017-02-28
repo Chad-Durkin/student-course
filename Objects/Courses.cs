@@ -155,6 +155,34 @@ namespace Registrar
             return allStudents;
         }
 
+        public static Course Find(int courseId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM courses WHERE id = @CourseId;", conn);
+            cmd.Parameters.Add(new SqlParameter("@CourseId", courseId));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            int foundCourseId = 0;
+            string courseName = null;
+            string courseNumber = null;
+
+            while(rdr.Read())
+            {
+                foundCourseId = rdr.GetInt32(0);
+                courseName = rdr.GetString(1);
+                courseNumber = rdr.GetString(2);
+            }
+
+            Course foundCourse = new Course(courseName, courseNumber, foundCourseId);
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return foundCourse;
+        }
+
         public static void DeleteAll()
         {
             DB.TableDeleteAll("courses");

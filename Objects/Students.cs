@@ -153,6 +153,50 @@ namespace Registrar
             return allCourses;
         }
 
+        public static Student Find(int studentId)
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM students WHERE id = @StudentId;", conn);
+            cmd.Parameters.Add(new SqlParameter("@StudentId", studentId));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            int foundId = 0;
+            string studentName = null;
+            string enrollmentDate = null;
+
+            while(rdr.Read())
+            {
+                foundId = rdr.GetInt32(0);
+                studentName = rdr.GetString(1);
+                enrollmentDate = rdr.GetDateTime(2).ToString("yyyy-MM-dd");
+            }
+
+            Student foundStudent = new Student(studentName, enrollmentDate, foundId);
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return foundStudent;
+        }
+
+        public void Delete()
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("DELETE FROM students WHERE id = @StudentId; DELETE FROM courses_students WHERE students_id = @StudentId;", conn);
+            cmd.Parameters.Add(new SqlParameter("@StudentId", this.GetId()));
+
+            cmd.ExecuteNonQuery();
+
+            if (conn != null)
+            {
+                conn.Close();
+            }
+        }
+
         public static void DeleteAll()
         {
             DB.TableDeleteAll("students");
