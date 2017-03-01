@@ -91,6 +91,37 @@ namespace Registrar
             Assert.Equal(expected, result);
         }
 
+        [Fact]
+        public void Test_GetStudents_StudentsInDepartment()
+        {
+            Department testDepartment = new Department("English");
+            testDepartment.Save();
+            Student testStudent1 = new Student("Britton", "2010-09-01", testDepartment.GetId());
+            testStudent1.Save();
+            Student testStudent2 = new Student("Rachel", "1999-09-01", testDepartment.GetId());
+            testStudent2.Save();
+
+            List<Student> output = testDepartment.GetStudents();
+            List<Student> expected = new List<Student>{testStudent1, testStudent2};
+
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
+        public void Test_GetCourses_CoursesInDepartment()
+        {
+            Department testDepartment = new Department("English");
+            testDepartment.Save();
+            Course testCourse1 = new Course("English", "ENGL120", testDepartment.GetId());
+            testCourse1.Save();
+            Course testCourse2 = new Course("Math", "MATL120", testDepartment.GetId());
+            testCourse2.Save();
+
+            List<Course> output = testDepartment.GetCourses();
+            List<Course> expected = new List<Course>{testCourse1, testCourse2};
+
+            Assert.Equal(expected, output);
+        }
 
         public void Dispose()
         {

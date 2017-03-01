@@ -112,6 +112,60 @@ namespace Registrar
             }
         }
 
+        public List<Student> GetStudents()
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM students WHERE department_id = @DepartmentId;", conn);
+            cmd.Parameters.Add(new SqlParameter("@DepartmentId", this.GetId().ToString()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            List<Student> foundStudents = new List<Student>{};
+
+            while(rdr.Read())
+            {
+                int foundId = rdr.GetInt32(0);
+                string studentName = rdr.GetString(1);
+                string enrollmentDate = rdr.GetDateTime(2).ToString("yyyy-MM-dd");
+                int departmentId = rdr.GetInt32(3);
+                Student newStudent = new Student(studentName, enrollmentDate, departmentId, foundId);
+                foundStudents.Add(newStudent);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return foundStudents;
+        }
+
+        public List<Course> GetCourses()
+        {
+            SqlConnection conn = DB.Connection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM courses WHERE department_id = @DepartmentId;", conn);
+            cmd.Parameters.Add(new SqlParameter("@DepartmentId", this.GetId().ToString()));
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            List<Course> foundCourses = new List<Course>{};
+
+            while(rdr.Read())
+            {
+                int foundId = rdr.GetInt32(0);
+                string courseName = rdr.GetString(1);
+                string courseNumber = rdr.GetString(2);
+                int departmentId = rdr.GetInt32(3);
+                Course newCourse = new Course(courseName, courseNumber, departmentId, foundId);
+                foundCourses.Add(newCourse);
+            }
+
+            DB.CloseSqlConnection(rdr, conn);
+
+            return foundCourses;
+        }
+
         public void Save()
         {
             SqlConnection conn = DB.Connection();
